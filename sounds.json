@@ -1,0 +1,75 @@
+{
+  "sounds": {
+    "varta_maamey.mp3": {
+      "label": "Varta Maamey",
+      "category": "Comedy",
+      "key": "1"
+    },
+    "Ithu_Enna_Pramatham.mp3": {
+      "label": "Ithu Enna Pramatham",
+      "category": "Mass",
+      "key": "2"
+    },
+    "nee_apadi_variya.mp3": {
+      "label": "Nee Apadi Variya",
+      "category": "Comedy",
+      "key": "3"
+    },
+    "nee_enna_solura_vivek.mp3": {
+      "label": "Nee Enna Solura - Vivek",
+      "category": "Comedy",
+      "key": "4"
+    },
+    "Ela_Poona_Paata_Jailer.mp3": {
+      "label": "Ela Poona Paata - Jailer",
+      "category": "Mass",
+      "key": "5"
+    },
+    "pothum_listperusu.mp3": {
+      "label": "Pothum List Perusu",
+      "category": "Comedy",
+      "key": "6"
+    },
+    "dei_yennada_dialogue.mp3": {
+      "label": "Dei Yennada",
+      "category": "Mass",
+      "key": "7"
+    },
+    "VVS_ADAADA.mp3": {
+      "label": "Adaada - VVS",
+      "category": "Reactions",
+      "key": "8"
+    },
+    "VVS_OHO.mp3": {
+      "label": "Oho - VVS",
+      "category": "Reactions",
+      "key": "9"
+    },
+    "VVS_AHA.mp3": {
+      "label": "Aha - VVS",
+      "category": "Reactions",
+      "key": "0"
+    },
+    "Juice_addika.mp3": {
+      "label": "Juice Addika",
+      "category": "Comedy",
+      "key": "q"
+    },
+    "Money_NoMoney.mp3": {
+      "label": "Money No Money",
+      "category": "Mass",
+      "key": "w"
+    },
+    "Adhi_International_Vibe.mp3": {
+      "label": "International Vibe - Adhi",
+      "category": "Love",
+      "key": "e"
+    }
+  },
+  "categories": {
+    "Comedy": "#ff9800",
+    "Mass": "#e91e63",
+    "Reactions": "#2196f3",
+    "Love": "#4caf50"
+  }
+} 

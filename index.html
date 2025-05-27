@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tamil Dialogue Soundboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      margin: 0 0 1rem 0;
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 3rem;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .search-container {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 1rem;
+      font-weight: 400;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #searchInput::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    #searchInput:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 150px;
+    }
+
+    #volumeSlider {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    #volumeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4ecdc4;
+      cursor: pointer;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .control-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .control-btn:hover::before {
+      opacity: 1;
+    }
+
+    .stop-btn {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    }
+
+    .stop-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .random-btn {
+      background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+    }
+
+    .random-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+    }
+
+    .toggle-btn {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    }
+
+    .toggle-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(100, 116, 139, 0.3);
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .category-section {
+      margin-bottom: 2rem;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .category-header:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .category-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .category-toggle {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .category-toggle.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .category-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      padding: 0 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .category-buttons.collapsed {
+      display: none;
+    }
+
+    .sound-button {
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .sound-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sound-button:hover::before {
+      opacity: 1;
+    }
+
+    .sound-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sound-button:active {
+      transform: translateY(-2px);
+    }
+
+    .sound-button.playing {
+      animation: pulse 1.5s infinite;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes pulse {
+      0% { 
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.4); 
+      }
+      70% { 
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 0 15px rgba(255, 255, 255, 0); 
+      }
+      100% { 
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0); 
+      }
+    }
+
+    .keyboard-hint {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 2rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.1rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Admin Mode Styles */
+    .admin-toggle {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 1000;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .admin-toggle.active {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      border-color: rgba(255, 107, 107, 0.3);
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    .admin-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      z-index: 999;
+      border-left: 2px solid #673ab7;
+    }
+
+    .admin-panel.open {
+      right: 0;
+    }
+
+    .admin-panel h2 {
+      color: #673ab7;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .admin-section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .admin-section h3 {
+      color: #fff;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .admin-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .admin-btn.primary {
+      background: #4caf50;
+    }
+
+    .admin-btn.primary:hover {
+      background: #45a049;
+    }
+
+    .admin-btn.secondary {
+      background: #2196f3;
+    }
+
+    .admin-btn.secondary:hover {
+      background: #1976d2;
+    }
+
+    .admin-btn.danger {
+      background: #f44336;
+    }
+
+    .admin-btn.danger:hover {
+      background: #d32f2f;
+    }
+
+    .sound-list {
+      max-height: 300px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      padding: 0.5rem;
+    }
+
+    .sound-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .sound-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sound-item.selected {
+      background: rgba(103, 58, 183, 0.5);
+      border: 1px solid #673ab7;
+    }
+
+    .sound-item-info {
+      flex: 1;
+    }
+
+    .sound-item-name {
+      font-weight: bold;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .sound-item-details {
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+
+    .edit-btn {
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .edit-btn:hover {
+      background: #f57c00;
+    }
+
+    .admin-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      display: none;
+    }
+
+    .admin-overlay.open {
+      display: block;
+    }
+
+    .sound-button.admin-mode {
+      position: relative;
+    }
+
+    .sound-button.admin-mode::after {
+      content: '✏️';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+    }
+
+    .status-message {
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .status-message.success {
+      background: rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+      border: 1px solid #4caf50;
+    }
+
+    .status-message.error {
+      background: rgba(244, 67, 54, 0.3);
+      color: #f44336;
+      border: 1px solid #f44336;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+
+      .search-container {
+        min-width: 100%;
+      }
+
+      .category-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 0 1rem;
+      }
+
+      .sound-button {
+        min-height: 70px;
+        padding: 1.25rem;
+      }
+
+      .keyboard-hint {
+        display: none;
+      }
+
+      .admin-panel {
+        width: 100%;
+        right: -100%;
+        padding: 1.5rem;
+      }
+
+      .admin-toggle {
+        top: 20px;
+        right: 20px;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .category-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-badge">🎵 LIVE PREVIEW</div>
+      <h1>Tamil Dialogue Soundboard</h1>
+      <p class="subtitle">Experience the best Tamil movie dialogues with our modern, interactive soundboard. Play, organize, and enjoy your favorite dialogues with style.</p>
+    </div>
+
+  <div class="controls">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="🔍 Search sounds..." />
+    </div>
+    
+    <div class="volume-container">
+      <span>🔊</span>
+      <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+      <span id="volumeDisplay">70%</span>
+    </div>
+
+    <div class="control-buttons">
+      <button id="stopAllBtn" class="control-btn stop-btn">⏹ Stop All</button>
+      <button id="randomBtn" class="control-btn random-btn">🎲 Random</button>
+      <button id="multiSoundToggle" class="control-btn toggle-btn">🔄 Single Mode</button>
+    </div>
+  </div>
+
+    <div id="soundboard"></div>
+    <div id="noResults" class="no-results hidden">No sounds found matching your search.</div>
+  </div>
+
+  <!-- Admin Panel -->
+  <button id="adminToggle" class="admin-toggle">⚙️ Admin</button>
+  <div id="adminOverlay" class="admin-overlay"></div>
+  <div id="adminPanel" class="admin-panel">
+    <h2>🔧 Sound Manager</h2>
+    
+    <div id="statusMessage" class="status-message hidden"></div>
+    
+    <!-- Add New Sound Section -->
+    <div class="admin-section">
+      <h3>➕ Add New Sound</h3>
+      <div class="form-group">
+        <label>Audio File:</label>
+        <input type="file" id="newSoundFile" accept=".mp3,.wav" />
+      </div>
+      <div class="form-group">
+        <label>Display Label:</label>
+        <input type="text" id="newSoundLabel" placeholder="e.g., Awesome Dialogue" />
+      </div>
+      <div class="form-group">
+        <label>Category:</label>
+        <select id="newSoundCategory">
+          <option value="Comedy">Comedy</option>
+          <option value="Mass">Mass</option>
+          <option value="Reactions">Reactions</option>
+          <option value="Love">Love</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Keyboard Shortcut (optional):</label>
+        <input type="text" id="newSoundKey" placeholder="e.g., r, t, y" maxlength="1" />
+      </div>
+      <button class="admin-btn primary" onclick="soundboard.addNewSound()">Add Sound</button>
+    </div>
+
+    <!-- Edit Existing Sound Section -->
+    <div class="admin-section">
+      <h3>✏️ Edit Existing Sounds</h3>
+      <div class="sound-list" id="soundList"></div>
+    </div>
+
+    <!-- Edit Form (Hidden by default) -->
+    <div class="admin-section hidden" id="editForm">
+      <h3>🔧 Edit Sound</h3>
+      <div class="form-group">
+        <label>Display Label:</label>
+        <input type="text" id="editSoundLabel" />
+      </div>
+      <div class="form-group">
+        <label>Category:</label>
+        <select id="editSoundCategory">
+          <option value="Comedy">Comedy</option>
+          <option value="Mass">Mass</option>
+          <option value="Reactions">Reactions</option>
+          <option value="Love">Love</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Keyboard Shortcut:</label>
+        <input type="text" id="editSoundKey" maxlength="1" />
+      </div>
+      <button class="admin-btn primary" onclick="soundboard.saveEdit()">Save Changes</button>
+      <button class="admin-btn secondary" onclick="soundboard.cancelEdit()">Cancel</button>
+      <button class="admin-btn danger" onclick="soundboard.deleteSound()">Delete Sound</button>
+    </div>
+
+    <!-- Category Management -->
+    <div class="admin-section">
+      <h3>🎨 Manage Categories</h3>
+      <div class="form-group">
+        <label>New Category Name:</label>
+        <input type="text" id="newCategoryName" placeholder="e.g., Action" />
+      </div>
+      <div class="form-group">
+        <label>Category Color:</label>
+        <input type="color" id="newCategoryColor" value="#9c27b0" />
+      </div>
+      <button class="admin-btn secondary" onclick="soundboard.addCategory()">Add Category</button>
+    </div>
+
+    <!-- Export/Import -->
+    <div class="admin-section">
+      <h3>💾 Backup & Restore</h3>
+      <button class="admin-btn secondary" onclick="soundboard.exportConfig()">Export Configuration</button>
+      <div class="form-group">
+        <label>Import Configuration:</label>
+        <input type="file" id="importConfig" accept=".json" onchange="soundboard.importConfig(this)" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class TamilSoundboard {
+      constructor() {
+        this.currentlyPlaying = [];
+        this.globalVolume = 0.7;
+        this.multiSoundMode = false;
+        this.soundsConfig = null;
+        this.collapsedCategories = new Set();
+        this.adminMode = false;
+        this.editingSound = null;
+        
+        this.initializeElements();
+        this.setupEventListeners();
+        this.loadSoundsConfig();
+      }
+
+      initializeElements() {
+        this.searchInput = document.getElementById('searchInput');
+        this.volumeSlider = document.getElementById('volumeSlider');
+        this.volumeDisplay = document.getElementById('volumeDisplay');
+        this.stopAllBtn = document.getElementById('stopAllBtn');
+        this.randomBtn = document.getElementById('randomBtn');
+        this.multiSoundToggle = document.getElementById('multiSoundToggle');
+        this.soundboard = document.getElementById('soundboard');
+        this.noResults = document.getElementById('noResults');
+        
+        // Admin elements
+        this.adminToggle = document.getElementById('adminToggle');
+        this.adminPanel = document.getElementById('adminPanel');
+        this.adminOverlay = document.getElementById('adminOverlay');
+        this.statusMessage = document.getElementById('statusMessage');
+        this.soundList = document.getElementById('soundList');
+        this.editForm = document.getElementById('editForm');
+      }
+
+      setupEventListeners() {
+        this.searchInput.addEventListener('input', () => this.filterSounds());
+        this.volumeSlider.addEventListener('input', (e) => this.updateVolume(e.target.value));
+        this.stopAllBtn.addEventListener('click', () => this.stopAllSounds());
+        this.randomBtn.addEventListener('click', () => this.playRandomSound());
+        this.multiSoundToggle.addEventListener('click', () => this.toggleMultiSoundMode());
+        
+        // Admin event listeners
+        this.adminToggle.addEventListener('click', () => this.toggleAdminMode());
+        this.adminOverlay.addEventListener('click', () => this.closeAdminPanel());
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcut(e));
+      }
+
+      async loadSoundsConfig() {
+        // First try to load from localStorage (user modifications)
+        const storedConfig = this.loadConfigFromStorage();
+        if (storedConfig) {
+          this.soundsConfig = storedConfig;
+          this.initializeSoundboard();
+          return;
+        }
+
+        // Then try to load from sounds.json
+        try {
+          const response = await fetch('./sounds.json');
+          this.soundsConfig = await response.json();
+          this.initializeSoundboard();
+        } catch (error) {
+          console.error('Error loading sounds config:', error);
+          // Fallback to auto-discovery
+          this.fallbackToAutoDiscovery();
+        }
+      }
+
+      async fallbackToAutoDiscovery() {
+        try {
+          const response = await fetch('./sounds/');
+          const text = await response.text();
+          const audioFiles = Array.from(text.matchAll(/href="([^"]+\.(mp3|wav))"/gi)).map(match => match[1]);
+          
+          // Create basic config
+          this.soundsConfig = {
+            sounds: {},
+            categories: { "All": "#e91e63" }
+          };
+          
+          audioFiles.forEach((file, index) => {
+            this.soundsConfig.sounds[file] = {
+              label: file.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
+              category: "All",
+              key: index < 10 ? index.toString() : null
+            };
+          });
+          
+          this.initializeSoundboard();
+        } catch (error) {
+          this.soundboard.innerHTML = `<p class="no-results">Error loading sounds. Please ensure you're running this from a local server.</p>`;
+        }
+      }
+
+      initializeSoundboard() {
+        this.renderSoundboard();
+        this.updateVolumeDisplay();
+      }
+
+      renderSoundboard() {
+        const categories = this.groupSoundsByCategory();
+        this.soundboard.innerHTML = '';
+
+        Object.entries(categories).forEach(([category, sounds]) => {
+          const categorySection = this.createCategorySection(category, sounds);
+          this.soundboard.appendChild(categorySection);
+        });
+      }
+
+      groupSoundsByCategory() {
+        const categories = {};
+        
+        Object.entries(this.soundsConfig.sounds).forEach(([filename, config]) => {
+          const category = config.category || 'Other';
+          if (!categories[category]) {
+            categories[category] = [];
+          }
+          categories[category].push({ filename, ...config });
+        });
+
+        return categories;
+      }
+
+      createCategorySection(category, sounds) {
+        const section = document.createElement('div');
+        section.className = 'category-section';
+        section.dataset.category = category;
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.onclick = () => this.toggleCategory(category);
+
+        const categoryColor = this.soundsConfig.categories[category] || '#666';
+        
+        header.innerHTML = `
+          <div class="category-title">
+            <span class="category-indicator" style="background-color: ${categoryColor}"></span>
+            ${category} (${sounds.length})
+          </div>
+          <span class="category-toggle ${this.collapsedCategories.has(category) ? 'collapsed' : ''}">▼</span>
+        `;
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = `category-buttons ${this.collapsedCategories.has(category) ? 'collapsed' : ''}`;
+
+        sounds.forEach(sound => {
+          const button = this.createSoundButton(sound, categoryColor);
+          buttonsContainer.appendChild(button);
+        });
+
+        section.appendChild(header);
+        section.appendChild(buttonsContainer);
+        return section;
+      }
+
+      createSoundButton(sound, categoryColor) {
+        const button = document.createElement('button');
+        button.className = `sound-button ${this.adminMode ? 'admin-mode' : ''}`;
+        button.style.backgroundColor = categoryColor;
+        button.dataset.filename = sound.filename;
+        button.dataset.label = sound.label.toLowerCase();
+        
+        button.innerHTML = `
+          ${sound.label}
+          ${sound.key ? `<span class="keyboard-hint">${sound.key.toUpperCase()}</span>` : ''}
+        `;
+
+        button.onclick = () => {
+          if (this.adminMode) {
+            this.editSound(sound.filename);
+          } else {
+            this.playSound(sound.filename, button);
+          }
+        };
+        return button;
+      }
+
+      toggleCategory(category) {
+        const section = document.querySelector(`[data-category="${category}"]`);
+        const buttonsContainer = section.querySelector('.category-buttons');
+        const toggle = section.querySelector('.category-toggle');
+
+        if (this.collapsedCategories.has(category)) {
+          this.collapsedCategories.delete(category);
+          buttonsContainer.classList.remove('collapsed');
+          toggle.classList.remove('collapsed');
+        } else {
+          this.collapsedCategories.add(category);
+          buttonsContainer.classList.add('collapsed');
+          toggle.classList.add('collapsed');
+        }
+      }
+
+      playSound(filename, button) {
+        if (!this.multiSoundMode) {
+          this.stopAllSounds();
+        }
+
+        const audio = new Audio(`sounds/${filename}`);
+        audio.volume = this.globalVolume;
+        
+        this.currentlyPlaying.push({ audio, button });
+        button.classList.add('playing');
+
+        audio.onended = () => {
+          this.removeFromCurrentlyPlaying(audio);
+          button.classList.remove('playing');
+        };
+
+        audio.onerror = () => {
+          this.removeFromCurrentlyPlaying(audio);
+          button.classList.remove('playing');
+          console.error(`Error playing sound: ${filename}`);
+        };
+
+        audio.play().catch(error => {
+          console.error(`Error playing sound: ${filename}`, error);
+          this.removeFromCurrentlyPlaying(audio);
+          button.classList.remove('playing');
+        });
+      }
+
+      removeFromCurrentlyPlaying(audio) {
+        this.currentlyPlaying = this.currentlyPlaying.filter(item => item.audio !== audio);
+      }
+
+      stopAllSounds() {
+        this.currentlyPlaying.forEach(({ audio, button }) => {
+          audio.pause();
+          audio.currentTime = 0;
+          button.classList.remove('playing');
+        });
+        this.currentlyPlaying = [];
+      }
+
+      playRandomSound() {
+        const allSounds = Object.entries(this.soundsConfig.sounds);
+        if (allSounds.length === 0) return;
+
+        const randomIndex = Math.floor(Math.random() * allSounds.length);
+        const [filename] = allSounds[randomIndex];
+        const button = document.querySelector(`[data-filename="${filename}"]`);
+        
+        if (button) {
+          this.playSound(filename, button);
+          // Scroll to the button
+          button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+
+      toggleMultiSoundMode() {
+        this.multiSoundMode = !this.multiSoundMode;
+        this.multiSoundToggle.textContent = this.multiSoundMode ? '🔄 Multi Mode' : '🔄 Single Mode';
+        this.multiSoundToggle.classList.toggle('active', this.multiSoundMode);
+        
+        if (!this.multiSoundMode) {
+          // Keep only the most recent sound
+          if (this.currentlyPlaying.length > 1) {
+            const mostRecent = this.currentlyPlaying[this.currentlyPlaying.length - 1];
+            this.currentlyPlaying.slice(0, -1).forEach(({ audio, button }) => {
+              audio.pause();
+              audio.currentTime = 0;
+              button.classList.remove('playing');
+            });
+            this.currentlyPlaying = [mostRecent];
+          }
+        }
+      }
+
+      updateVolume(value) {
+        this.globalVolume = value / 100;
+        this.volumeDisplay.textContent = `${value}%`;
+        
+        // Update volume for currently playing sounds
+        this.currentlyPlaying.forEach(({ audio }) => {
+          audio.volume = this.globalVolume;
+        });
+      }
+
+      updateVolumeDisplay() {
+        this.volumeDisplay.textContent = `${Math.round(this.globalVolume * 100)}%`;
+      }
+
+      filterSounds() {
+        const searchTerm = this.searchInput.value.toLowerCase().trim();
+        const buttons = document.querySelectorAll('.sound-button');
+        let visibleCount = 0;
+
+        buttons.forEach(button => {
+          const label = button.dataset.label;
+          const isVisible = !searchTerm || label.includes(searchTerm);
+          
+          button.style.display = isVisible ? 'flex' : 'none';
+          if (isVisible) visibleCount++;
+        });
+
+        // Show/hide category sections based on visible buttons
+        document.querySelectorAll('.category-section').forEach(section => {
+          const visibleButtons = section.querySelectorAll('.sound-button[style*="flex"], .sound-button:not([style*="none"])');
+          const hasVisibleButtons = Array.from(visibleButtons).some(btn => btn.style.display !== 'none');
+          section.style.display = hasVisibleButtons ? 'block' : 'none';
+        });
+
+        this.noResults.classList.toggle('hidden', visibleCount > 0);
+      }
+
+      handleKeyboardShortcut(event) {
+        // Don't trigger shortcuts when typing in search or in admin mode
+        if (event.target === this.searchInput || this.adminMode) return;
+        
+        const key = event.key.toLowerCase();
+        
+        // Find sound with matching key
+        const soundEntry = Object.entries(this.soundsConfig.sounds).find(([_, config]) => 
+          config.key && config.key.toLowerCase() === key
+        );
+
+        if (soundEntry) {
+          event.preventDefault();
+          const [filename] = soundEntry;
+          const button = document.querySelector(`[data-filename="${filename}"]`);
+          if (button && button.style.display !== 'none') {
+            this.playSound(filename, button);
+          }
+        }
+      }
+
+      // Admin Mode Functions
+      toggleAdminMode() {
+        this.adminMode = !this.adminMode;
+        this.adminToggle.classList.toggle('active', this.adminMode);
+        this.adminToggle.textContent = this.adminMode ? '❌ Exit Admin' : '⚙️ Admin';
+        
+        if (this.adminMode) {
+          this.openAdminPanel();
+          this.populateSoundList();
+          this.updateCategorySelects();
+        } else {
+          this.closeAdminPanel();
+        }
+        
+        // Update button styles
+        document.querySelectorAll('.sound-button').forEach(btn => {
+          btn.classList.toggle('admin-mode', this.adminMode);
+        });
+      }
+
+      openAdminPanel() {
+        this.adminPanel.classList.add('open');
+        this.adminOverlay.classList.add('open');
+      }
+
+      closeAdminPanel() {
+        this.adminPanel.classList.remove('open');
+        this.adminOverlay.classList.remove('open');
+        this.adminMode = false;
+        this.adminToggle.classList.remove('active');
+        this.adminToggle.textContent = '⚙️ Admin';
+        this.cancelEdit();
+        
+        // Update button styles
+        document.querySelectorAll('.sound-button').forEach(btn => {
+          btn.classList.remove('admin-mode');
+        });
+      }
+
+      populateSoundList() {
+        this.soundList.innerHTML = '';
+        
+        Object.entries(this.soundsConfig.sounds).forEach(([filename, config]) => {
+          const item = document.createElement('div');
+          item.className = 'sound-item';
+          item.dataset.filename = filename;
+          
+          item.innerHTML = `
+            <div class="sound-item-info">
+              <div class="sound-item-name">${config.label}</div>
+              <div class="sound-item-details">${config.category} • ${config.key || 'No shortcut'}</div>
+            </div>
+            <button class="edit-btn" onclick="soundboard.editSound('${filename}')">Edit</button>
+          `;
+          
+          this.soundList.appendChild(item);
+        });
+      }
+
+      updateCategorySelects() {
+        const categories = Object.keys(this.soundsConfig.categories);
+        const selects = ['newSoundCategory', 'editSoundCategory'];
+        
+        selects.forEach(selectId => {
+          const select = document.getElementById(selectId);
+          select.innerHTML = '';
+          categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            select.appendChild(option);
+          });
+        });
+      }
+
+      editSound(filename) {
+        this.editingSound = filename;
+        const config = this.soundsConfig.sounds[filename];
+        
+        // Populate edit form
+        document.getElementById('editSoundLabel').value = config.label;
+        document.getElementById('editSoundCategory').value = config.category;
+        document.getElementById('editSoundKey').value = config.key || '';
+        
+        // Show edit form and highlight selected sound
+        this.editForm.classList.remove('hidden');
+        document.querySelectorAll('.sound-item').forEach(item => {
+          item.classList.toggle('selected', item.dataset.filename === filename);
+        });
+        
+        // Scroll to edit form
+        this.editForm.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      saveEdit() {
+        if (!this.editingSound) return;
+        
+        const label = document.getElementById('editSoundLabel').value.trim();
+        const category = document.getElementById('editSoundCategory').value;
+        const key = document.getElementById('editSoundKey').value.trim();
+        
+        if (!label) {
+          this.showStatus('Please enter a label', 'error');
+          return;
+        }
+        
+        // Check for duplicate keys
+        if (key && this.isDuplicateKey(key, this.editingSound)) {
+          this.showStatus('Keyboard shortcut already in use', 'error');
+          return;
+        }
+        
+        // Update config
+        this.soundsConfig.sounds[this.editingSound] = {
+          ...this.soundsConfig.sounds[this.editingSound],
+          label,
+          category,
+          key: key || null
+        };
+        
+        this.saveConfigToStorage();
+        this.renderSoundboard();
+        this.populateSoundList();
+        this.cancelEdit();
+        this.showStatus('Sound updated successfully!', 'success');
+      }
+
+      cancelEdit() {
+        this.editingSound = null;
+        this.editForm.classList.add('hidden');
+        document.querySelectorAll('.sound-item').forEach(item => {
+          item.classList.remove('selected');
+        });
+      }
+
+      deleteSound() {
+        if (!this.editingSound) return;
+        
+        if (confirm('Are you sure you want to delete this sound?')) {
+          delete this.soundsConfig.sounds[this.editingSound];
+          this.saveConfigToStorage();
+          this.renderSoundboard();
+          this.populateSoundList();
+          this.cancelEdit();
+          this.showStatus('Sound deleted successfully!', 'success');
+        }
+      }
+
+      async addNewSound() {
+        const fileInput = document.getElementById('newSoundFile');
+        const label = document.getElementById('newSoundLabel').value.trim();
+        const category = document.getElementById('newSoundCategory').value;
+        const key = document.getElementById('newSoundKey').value.trim();
+        
+        if (!fileInput.files[0]) {
+          this.showStatus('Please select an audio file', 'error');
+          return;
+        }
+        
+        if (!label) {
+          this.showStatus('Please enter a label', 'error');
+          return;
+        }
+        
+        // Check for duplicate keys
+        if (key && this.isDuplicateKey(key)) {
+          this.showStatus('Keyboard shortcut already in use', 'error');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const filename = file.name;
+        
+        // Check if file already exists
+        if (this.soundsConfig.sounds[filename]) {
+          this.showStatus('A sound with this filename already exists', 'error');
+          return;
+        }
+        
+        try {
+          // In a real implementation, you'd upload the file to the server
+          // For now, we'll just add it to the config assuming it's in the sounds folder
+          this.soundsConfig.sounds[filename] = {
+            label,
+            category,
+            key: key || null
+          };
+          
+          this.saveConfigToStorage();
+          this.renderSoundboard();
+          this.populateSoundList();
+          
+          // Clear form
+          fileInput.value = '';
+          document.getElementById('newSoundLabel').value = '';
+          document.getElementById('newSoundKey').value = '';
+          
+          this.showStatus(`Sound "${label}" added! (Note: Make sure to upload ${filename} to the sounds folder)`, 'success');
+        } catch (error) {
+          this.showStatus('Error adding sound', 'error');
+        }
+      }
+
+      addCategory() {
+        const name = document.getElementById('newCategoryName').value.trim();
+        const color = document.getElementById('newCategoryColor').value;
+        
+        if (!name) {
+          this.showStatus('Please enter a category name', 'error');
+          return;
+        }
+        
+        if (this.soundsConfig.categories[name]) {
+          this.showStatus('Category already exists', 'error');
+          return;
+        }
+        
+        this.soundsConfig.categories[name] = color;
+        this.saveConfigToStorage();
+        this.updateCategorySelects();
+        
+        // Clear form
+        document.getElementById('newCategoryName').value = '';
+        document.getElementById('newCategoryColor').value = '#9c27b0';
+        
+        this.showStatus(`Category "${name}" added successfully!`, 'success');
+      }
+
+      exportConfig() {
+        const dataStr = JSON.stringify(this.soundsConfig, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'sounds-config.json';
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.showStatus('Configuration exported successfully!', 'success');
+      }
+
+      importConfig(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const config = JSON.parse(e.target.result);
+            
+            // Validate config structure
+            if (!config.sounds || !config.categories) {
+              throw new Error('Invalid configuration format');
+            }
+            
+            this.soundsConfig = config;
+            this.saveConfigToStorage();
+            this.renderSoundboard();
+            this.populateSoundList();
+            this.updateCategorySelects();
+            
+            input.value = ''; // Clear file input
+            this.showStatus('Configuration imported successfully!', 'success');
+          } catch (error) {
+            this.showStatus('Error importing configuration: ' + error.message, 'error');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      isDuplicateKey(key, excludeFilename = null) {
+        return Object.entries(this.soundsConfig.sounds).some(([filename, config]) => 
+          filename !== excludeFilename && config.key && config.key.toLowerCase() === key.toLowerCase()
+        );
+      }
+
+      saveConfigToStorage() {
+        // Save to localStorage as backup
+        localStorage.setItem('soundboard-config', JSON.stringify(this.soundsConfig));
+        
+        // In a real implementation, you'd also save to the server
+        console.log('Configuration saved to localStorage');
+      }
+
+      loadConfigFromStorage() {
+        const stored = localStorage.getItem('soundboard-config');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (error) {
+            console.error('Error loading stored config:', error);
+          }
+        }
+        return null;
+      }
+
+      showStatus(message, type) {
+        this.statusMessage.textContent = message;
+        this.statusMessage.className = `status-message ${type}`;
+        this.statusMessage.classList.remove('hidden');
+        
+        setTimeout(() => {
+          this.statusMessage.classList.add('hidden');
+        }, 3000);
+      }
+    }
+
+    // Initialize the soundboard when the page loads
+    let soundboard;
+    document.addEventListener('DOMContentLoaded', () => {
+      soundboard = new TamilSoundboard();
+    });
+  </script>
+</body>
+</html>
