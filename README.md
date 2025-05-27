@@ -231,12 +231,18 @@ Modify `sounds.json` to match your needs:
 
 ## 🎹 Keyboard Shortcuts
 
-| Key | Default Sound | Customizable |
-|-----|---------------|--------------|
+| Key/Combination | Default Sound | Customizable |
+|-----------------|---------------|--------------|
 | `1-0` | Tamil Dialogues | ✅ Yes |
 | `Q,W,E,R,T,Y,U,I,O,P` | Available for assignment | ✅ Yes |
-| `Space` | Stop all sounds | ❌ Fixed |
-| `/` | Focus search | ❌ Fixed |
+| `Ctrl+[Key]` | Custom combinations | ✅ Yes |
+| `Alt+[Key]` | Custom combinations | ✅ Yes |
+| `Shift+[Key]` | Custom combinations | ✅ Yes |
+| `F1-F12` | Function keys | ✅ Yes |
+| `Arrow Keys` | Navigation keys | ✅ Yes |
+| `Space`, `Enter`, etc. | Special keys | ✅ Yes |
+
+**Note**: You can now assign any key combination including modifiers (Ctrl, Alt, Shift) and special keys!
 
 ## 📁 File Structure
 

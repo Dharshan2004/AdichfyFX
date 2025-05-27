@@ -747,7 +747,10 @@
       </div>
       <div class="form-group">
         <label>Keyboard Shortcut (optional):</label>
-        <input type="text" id="newSoundKey" placeholder="e.g., r, t, y" maxlength="1" />
+        <input type="text" id="newSoundKey" placeholder="Press any key combination..." readonly />
+        <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+          Click the field and press your desired key combination
+        </small>
       </div>
       <button class="admin-btn primary" onclick="soundboard.addNewSound()">Add Sound</button>
     </div>
@@ -776,7 +779,10 @@
       </div>
       <div class="form-group">
         <label>Keyboard Shortcut:</label>
-        <input type="text" id="editSoundKey" maxlength="1" />
+        <input type="text" id="editSoundKey" placeholder="Press any key combination..." readonly />
+        <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+          Click the field and press your desired key combination
+        </small>
       </div>
       <button class="admin-btn primary" onclick="soundboard.saveEdit()">Save Changes</button>
       <button class="admin-btn secondary" onclick="soundboard.cancelEdit()">Cancel</button>
@@ -818,6 +824,7 @@
         this.collapsedCategories = new Set();
         this.adminMode = false;
         this.editingSound = null;
+        this.isCapturingKey = false;
         
         this.initializeElements();
         this.setupEventListeners();
@@ -856,6 +863,9 @@
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcut(e));
+        
+        // Key capture for shortcut inputs
+        this.setupKeyCapture();
       }
 
       async loadSoundsConfig() {
@@ -1118,14 +1128,14 @@
       }
 
       handleKeyboardShortcut(event) {
-        // Don't trigger shortcuts when typing in search or in admin mode
-        if (event.target === this.searchInput || this.adminMode) return;
+        // Don't trigger shortcuts when typing in search, admin mode, or capturing keys
+        if (event.target === this.searchInput || this.adminMode || this.isCapturingKey) return;
         
-        const key = event.key.toLowerCase();
+        const keyCombo = this.getKeyCombo(event);
         
-        // Find sound with matching key
+        // Find sound with matching key combination
         const soundEntry = Object.entries(this.soundsConfig.sounds).find(([_, config]) => 
-          config.key && config.key.toLowerCase() === key
+          config.key && config.key === keyCombo
         );
 
         if (soundEntry) {
@@ -1136,6 +1146,78 @@
             this.playSound(filename, button);
           }
         }
+      }
+
+      getKeyCombo(event) {
+        const parts = [];
+        
+        // Add modifiers in consistent order
+        if (event.ctrlKey) parts.push('Ctrl');
+        if (event.altKey) parts.push('Alt');
+        if (event.shiftKey) parts.push('Shift');
+        if (event.metaKey) parts.push('Meta');
+        
+        // Add the main key
+        let key = event.key;
+        
+        // Handle special keys
+        if (key === ' ') key = 'Space';
+        else if (key === 'ArrowUp') key = 'Up';
+        else if (key === 'ArrowDown') key = 'Down';
+        else if (key === 'ArrowLeft') key = 'Left';
+        else if (key === 'ArrowRight') key = 'Right';
+        else if (key.length === 1) key = key.toUpperCase();
+        
+        // Don't include modifiers as the main key
+        if (!['Control', 'Alt', 'Shift', 'Meta'].includes(key)) {
+          parts.push(key);
+        }
+        
+        return parts.join('+');
+      }
+
+      setupKeyCapture() {
+        const keyInputs = ['newSoundKey', 'editSoundKey'];
+        
+        keyInputs.forEach(inputId => {
+          const input = document.getElementById(inputId);
+          if (!input) return;
+          
+          input.addEventListener('focus', () => {
+            this.isCapturingKey = true;
+            input.placeholder = 'Press any key combination...';
+            input.style.background = 'rgba(255, 255, 255, 0.3)';
+          });
+          
+          input.addEventListener('blur', () => {
+            this.isCapturingKey = false;
+            input.style.background = 'rgba(255, 255, 255, 0.2)';
+          });
+          
+          input.addEventListener('keydown', (e) => {
+            if (!this.isCapturingKey) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Allow clearing with Escape or Backspace
+            if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Delete') {
+              input.value = '';
+              return;
+            }
+            
+            // Don't capture just modifier keys
+            if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+              return;
+            }
+            
+            const keyCombo = this.getKeyCombo(e);
+            input.value = keyCombo;
+            
+            // Auto-blur after capturing
+            setTimeout(() => input.blur(), 100);
+          });
+        });
       }
 
       // Admin Mode Functions
@@ -1410,8 +1492,9 @@
       }
 
       isDuplicateKey(key, excludeFilename = null) {
+        if (!key) return false;
         return Object.entries(this.soundsConfig.sounds).some(([filename, config]) => 
-          filename !== excludeFilename && config.key && config.key.toLowerCase() === key.toLowerCase()
+          filename !== excludeFilename && config.key && config.key === key
         );
       }
 
