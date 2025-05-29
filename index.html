@@ -710,6 +710,7 @@
       <button id="stopAllBtn" class="control-btn stop-btn">⏹ Stop All</button>
       <button id="randomBtn" class="control-btn random-btn">🎲 Random</button>
       <button id="multiSoundToggle" class="control-btn toggle-btn">🔄 Single Mode</button>
+      <button id="enableAudioBtn" class="control-btn toggle-btn" style="display: none;">🔊 Enable Audio</button>
     </div>
   </div>
 
@@ -812,6 +813,17 @@
         <input type="file" id="importConfig" accept=".json" onchange="soundboard.importConfig(this)" />
       </div>
     </div>
+
+    <!-- Diagnostics -->
+    <div class="admin-section">
+      <h3>🔍 Audio Diagnostics</h3>
+      <button class="admin-btn secondary" onclick="soundboard.runDiagnostics()">Run Audio Test</button>
+      <button class="admin-btn secondary" onclick="soundboard.testRandomSound()">Test Random Sound</button>
+      <button class="admin-btn secondary" onclick="soundboard.enableAudio()">Enable Audio (Click First)</button>
+      <div id="diagnosticsResults" style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.8rem; color: #ccc; display: none;">
+        <div id="diagnosticsText"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -838,6 +850,7 @@
         this.stopAllBtn = document.getElementById('stopAllBtn');
         this.randomBtn = document.getElementById('randomBtn');
         this.multiSoundToggle = document.getElementById('multiSoundToggle');
+        this.enableAudioBtn = document.getElementById('enableAudioBtn');
         this.soundboard = document.getElementById('soundboard');
         this.noResults = document.getElementById('noResults');
         
@@ -856,6 +869,7 @@
         this.stopAllBtn.addEventListener('click', () => this.stopAllSounds());
         this.randomBtn.addEventListener('click', () => this.playRandomSound());
         this.multiSoundToggle.addEventListener('click', () => this.toggleMultiSoundMode());
+        this.enableAudioBtn.addEventListener('click', () => this.enableAudioFromButton());
         
         // Admin event listeners
         this.adminToggle.addEventListener('click', () => this.toggleAdminMode());
@@ -1019,28 +1033,75 @@
           this.stopAllSounds();
         }
 
-        const audio = new Audio(`sounds/${filename}`);
-        audio.volume = this.globalVolume;
-        
-        this.currentlyPlaying.push({ audio, button });
+        // Add visual feedback immediately
         button.classList.add('playing');
+        
+        // Create audio with better error handling
+        const audio = new Audio();
+        audio.volume = this.globalVolume;
+        audio.preload = 'auto';
+        
+        // Add to currently playing list immediately
+        this.currentlyPlaying.push({ audio, button });
+
+        // Enhanced error handling
+        audio.onerror = (e) => {
+          console.error(`Error loading sound: ${filename}`, e);
+          this.removeFromCurrentlyPlaying(audio);
+          button.classList.remove('playing');
+          this.showStatus(`Failed to load: ${filename}`, 'error');
+        };
+
+        audio.onloadstart = () => {
+          console.log(`Loading started: ${filename}`);
+        };
+
+        audio.oncanplay = () => {
+          console.log(`Can play: ${filename}`);
+        };
 
         audio.onended = () => {
           this.removeFromCurrentlyPlaying(audio);
           button.classList.remove('playing');
         };
 
-        audio.onerror = () => {
+        audio.onpause = () => {
           this.removeFromCurrentlyPlaying(audio);
           button.classList.remove('playing');
-          console.error(`Error playing sound: ${filename}`);
         };
 
-        audio.play().catch(error => {
-          console.error(`Error playing sound: ${filename}`, error);
-          this.removeFromCurrentlyPlaying(audio);
-          button.classList.remove('playing');
-        });
+        // Set source and attempt to play
+        const audioPath = `sounds/${encodeURIComponent(filename)}`;
+        audio.src = audioPath;
+        
+        console.log(`Attempting to play: ${audioPath}`);
+        
+        // Use a promise-based approach for better error handling
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log(`Successfully playing: ${filename}`);
+            })
+            .catch(error => {
+              console.error(`Error playing sound: ${filename}`, error);
+              this.removeFromCurrentlyPlaying(audio);
+              button.classList.remove('playing');
+              
+              // Provide specific error messages
+              if (error.name === 'NotAllowedError') {
+                this.showStatus('Audio blocked by browser. Click to enable audio.', 'error');
+                this.showEnableAudioButton();
+              } else if (error.name === 'NotSupportedError') {
+                this.showStatus(`Audio format not supported: ${filename}`, 'error');
+              } else if (error.name === 'AbortError') {
+                this.showStatus(`Audio loading aborted: ${filename}`, 'error');
+              } else {
+                this.showStatus(`Playback failed: ${filename}`, 'error');
+              }
+            });
+        }
       }
 
       removeFromCurrentlyPlaying(audio) {
@@ -1393,6 +1454,19 @@
         const file = fileInput.files[0];
         const filename = file.name;
         
+        // Validate file type
+        const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/wave'];
+        if (!validTypes.includes(file.type) && !filename.match(/\.(mp3|wav)$/i)) {
+          this.showStatus('Please select a valid audio file (MP3 or WAV)', 'error');
+          return;
+        }
+        
+        // Check file size (limit to 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          this.showStatus('File size too large. Please use files under 10MB.', 'error');
+          return;
+        }
+        
         // Check if file already exists
         if (this.soundsConfig.sounds[filename]) {
           this.showStatus('A sound with this filename already exists', 'error');
@@ -1400,8 +1474,23 @@
         }
         
         try {
-          // In a real implementation, you'd upload the file to the server
-          // For now, we'll just add it to the config assuming it's in the sounds folder
+          // Test if the audio file is valid by creating a temporary audio element
+          const testAudio = new Audio();
+          const fileURL = URL.createObjectURL(file);
+          
+          await new Promise((resolve, reject) => {
+            testAudio.oncanplay = () => {
+              URL.revokeObjectURL(fileURL);
+              resolve();
+            };
+            testAudio.onerror = () => {
+              URL.revokeObjectURL(fileURL);
+              reject(new Error('Invalid audio file'));
+            };
+            testAudio.src = fileURL;
+          });
+          
+          // Add to config
           this.soundsConfig.sounds[filename] = {
             label,
             category,
@@ -1417,9 +1506,20 @@
           document.getElementById('newSoundLabel').value = '';
           document.getElementById('newSoundKey').value = '';
           
-          this.showStatus(`Sound "${label}" added! (Note: Make sure to upload ${filename} to the sounds folder)`, 'success');
+          this.showStatus(`Sound "${label}" added successfully! Remember to copy ${filename} to your sounds folder.`, 'success');
+          
+          // Show detailed instructions
+          console.log(`
+=== IMPORTANT: Manual File Copy Required ===
+1. Copy the file: ${filename}
+2. To the folder: sounds/
+3. The file should be accessible at: sounds/${filename}
+4. Then the sound will play properly.
+          `);
+          
         } catch (error) {
-          this.showStatus('Error adding sound', 'error');
+          console.error('Error validating audio file:', error);
+          this.showStatus('Invalid audio file or file cannot be played', 'error');
         }
       }
 
@@ -1526,6 +1626,186 @@
         setTimeout(() => {
           this.statusMessage.classList.add('hidden');
         }, 3000);
+      }
+
+      // Methods for diagnostic buttons
+      async runDiagnostics() {
+        const resultsDiv = document.getElementById('diagnosticsResults');
+        const textDiv = document.getElementById('diagnosticsText');
+        
+        resultsDiv.style.display = 'block';
+        textDiv.innerHTML = 'Running diagnostics...';
+        
+        const results = await this.testAudioCapabilities();
+        
+        let html = '<strong>Audio Diagnostics Results:</strong><br>';
+        html += `✅ Audio Context: ${results.audioContext ? 'Supported' : '❌ Not Supported'}<br>`;
+        html += `🎵 MP3 Support: ${results.mp3Support ? 'Yes' : '❌ No'}<br>`;
+        html += `🎵 WAV Support: ${results.wavSupport ? 'Yes' : '❌ No'}<br>`;
+        html += `🔊 Autoplay: ${results.autoplayAllowed ? 'Allowed' : '❌ Blocked (Click "Enable Audio" first)'}<br>`;
+        html += '<br><strong>File Accessibility:</strong><br>';
+        
+        results.filesAccessible.forEach(file => {
+          const status = file.accessible ? '✅' : '❌';
+          html += `${status} ${file.filename}: ${file.accessible ? 'OK' : file.error || 'Not accessible'}<br>`;
+        });
+        
+        textDiv.innerHTML = html;
+        
+        if (!results.autoplayAllowed) {
+          this.showStatus('Audio blocked by browser. Click "Enable Audio" first.', 'error');
+        } else if (results.filesAccessible.some(f => !f.accessible)) {
+          this.showStatus('Some audio files are not accessible. Check file paths.', 'error');
+        } else {
+          this.showStatus('Audio diagnostics completed. Check results below.', 'success');
+        }
+      }
+
+      async testRandomSound() {
+        const sounds = Object.keys(this.soundsConfig.sounds);
+        if (sounds.length === 0) {
+          this.showStatus('No sounds configured to test', 'error');
+          return;
+        }
+        
+        const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+        this.showStatus(`Testing: ${randomSound}`, 'success');
+        
+        const result = await this.testAudioFile(randomSound);
+        
+        if (result.success) {
+          this.showStatus(`✅ ${randomSound} loaded successfully (${result.loadTime}ms)`, 'success');
+          console.log('Audio test result:', result);
+        } else {
+          this.showStatus(`❌ Failed to load ${randomSound}`, 'error');
+          console.error('Audio test failed:', result);
+        }
+      }
+
+      async enableAudio() {
+        try {
+          // Create a silent audio to trigger user interaction
+          const audio = new Audio();
+          audio.volume = 0.01;
+          audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmHgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+          
+          await audio.play();
+          this.showStatus('✅ Audio enabled! Browser will now allow sound playback.', 'success');
+          
+          // Test with a real sound file
+          setTimeout(() => {
+            this.testRandomSound();
+          }, 500);
+          
+        } catch (error) {
+          this.showStatus('❌ Could not enable audio. Try clicking a sound button first.', 'error');
+          console.error('Enable audio failed:', error);
+        }
+      }
+
+      async testAudioCapabilities() {
+        const results = {
+          audioContext: false,
+          mp3Support: false,
+          wavSupport: false,
+          autoplayAllowed: false,
+          filesAccessible: []
+        };
+
+        // Test Web Audio API
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          results.audioContext = true;
+          audioContext.close();
+        } catch (e) {
+          console.warn('Web Audio API not supported:', e);
+        }
+
+        // Test audio format support
+        const audio = new Audio();
+        results.mp3Support = audio.canPlayType('audio/mpeg') !== '';
+        results.wavSupport = audio.canPlayType('audio/wav') !== '';
+
+        // Test autoplay policy
+        try {
+          const testAudio = new Audio();
+          testAudio.volume = 0;
+          testAudio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmHgU7k9n1unEiBC13yO/eizEIHWq+8+OWT';
+          await testAudio.play();
+          results.autoplayAllowed = true;
+        } catch (e) {
+          console.warn('Autoplay not allowed:', e);
+        }
+
+        // Test file accessibility
+        const testFiles = Object.keys(this.soundsConfig.sounds).slice(0, 3);
+        for (const filename of testFiles) {
+          try {
+            const response = await fetch(`sounds/${filename}`, { method: 'HEAD' });
+            results.filesAccessible.push({
+              filename,
+              accessible: response.ok,
+              status: response.status
+            });
+          } catch (e) {
+            results.filesAccessible.push({
+              filename,
+              accessible: false,
+              error: e.message
+            });
+          }
+        }
+
+        console.log('Audio Diagnostics:', results);
+        return results;
+      }
+
+      async testAudioFile(filename) {
+        return new Promise((resolve) => {
+          const audio = new Audio();
+          const startTime = Date.now();
+          
+          audio.oncanplay = () => {
+            const loadTime = Date.now() - startTime;
+            resolve({
+              success: true,
+              loadTime,
+              duration: audio.duration,
+              filename
+            });
+          };
+          
+          audio.onerror = (e) => {
+            resolve({
+              success: false,
+              error: e,
+              filename
+            });
+          };
+          
+          audio.src = `sounds/${filename}`;
+        });
+      }
+
+      showEnableAudioButton() {
+        if (this.enableAudioBtn) {
+          this.enableAudioBtn.style.display = 'block';
+        }
+      }
+
+      hideEnableAudioButton() {
+        if (this.enableAudioBtn) {
+          this.enableAudioBtn.style.display = 'none';
+        }
+      }
+
+      async enableAudioFromButton() {
+        try {
+          await this.enableAudio();
+          this.hideEnableAudioButton();
+        } catch (error) {
+          console.error('Failed to enable audio:', error);
+        }
       }
     }
 
